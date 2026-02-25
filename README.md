@@ -31,8 +31,6 @@ Longitudinal study where 10 adults completed standardized psychology tests acros
 
 ## Experimental setup
 
-![Human Performance Monitoring dashboard — Thales](images/Thales%20Human%20Performance%20Monitoring%20for%20Data%20Collection.png)
-
 | Hardware and sensors | Setup |
 |:---:|:---:|
 | ![Hardware setup](images/experimental_setup.jpg) | ![Setup](images/setup_page_4.jpg) |
