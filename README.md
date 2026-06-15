@@ -1,5 +1,8 @@
 # Multimodal-Multisensor
 
+[![CI](https://github.com/urme-b/Multimodal-Multisensor/actions/workflows/ci.yml/badge.svg)](https://github.com/urme-b/Multimodal-Multisensor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Longitudinal study where 10 adults completed standardized psychology tests across three weekly sessions while wearing multiple biometric sensors. Combines self-report psychometric data with real-time physiological recordings.
 
 ## Study design
