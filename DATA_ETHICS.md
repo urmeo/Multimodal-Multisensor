@@ -2,34 +2,49 @@
 
 This repository contains human-subjects data: psychometric responses (HADS,
 STAI-S, BFI-10, Fear Questionnaire) and physiological recordings (heart rate,
-HRV, IBI, electrodermal activity, eye tracking) collected from adult
-participants across multiple sessions.
+HRV, IBI, electrodermal activity, eye tracking) collected from 10 adult
+participants across three sessions. Because it includes health-related
+measurements, it is handled as special-category personal data.
 
-> **Action required:** replace every `[FILL IN]` below with the facts from your
-> study before publishing. Do not leave placeholders in a public release.
+## Legal basis and data protection
+This study was conducted, and the data are shared, in compliance with the EU
+General Data Protection Regulation (Regulation (EU) 2016/679, "GDPR") and the
+French Data Protection Act (Loi n° 78-17 du 6 janvier 1978, "Informatique et
+Libertés", as amended). No separate institutional review board (IRB) number
+applies; governance rests on the data-protection framework above together with
+the participants' explicit consent.
 
-## Ethical approval
-- Study reviewed and approved by: **[FILL IN — ethics board / IRB name]**
-- Approval / protocol number: **[FILL IN]**
-- Approval date: **[FILL IN]**
+- Lawful basis: the participants' explicit, informed consent (GDPR Art. 6(1)(a)
+  and, for special-category health data, Art. 9(2)(a)).
+- Principles applied: data minimisation, purpose limitation, and release of only
+  pseudonymised records (GDPR Art. 5).
 
 ## Informed consent
 All participants gave written informed consent before participation, including
-explicit consent for **[FILL IN: anonymised data sharing / open release]**.
-Participants were free to withdraw at any time without penalty.
+explicit consent for the pseudonymised data to be shared openly for research and
+educational purposes. Participants were free to withdraw at any time without
+penalty.
 
 ## De-identification
 - The released data contains **no direct identifiers** (no names, contact
   details, dates of birth, or device identifiers).
-- Participants are referred to only by non-reversible codes (e.g. `01`, `02`).
-- **[FILL IN: any additional steps — e.g. timestamps shifted, free-text removed]**
+- Participants are referred to only by non-reversible pseudonymous codes
+  (e.g. `01`, `02`).
+- Recording timestamps are retained for time-series analysis. They carry no
+  location or identity information and, combined only with pseudonymous codes,
+  present low re-identification risk; they can be shifted to relative session
+  time on request.
 - If you believe any released field could re-identify a participant, please open
   an issue and it will be removed.
 
+## Data-subject rights
+Participants retain their GDPR rights of access, rectification, erasure, and
+objection. Requests can be made via the contact below.
+
 ## Permitted use
 This data is released under the repository's license for **research and
-educational purposes**. Do not attempt to re-identify participants or use the
-data to make decisions about any individual.
+educational purposes** only. Do not attempt to re-identify participants or use
+the data to make decisions about any individual.
 
 ## Contact
-Questions about the data or this statement: **[FILL IN — contact email]**.
+Data controller / questions about this statement: Urme B — urme.emma@gmail.com.
