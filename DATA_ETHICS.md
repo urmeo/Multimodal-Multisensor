@@ -47,4 +47,4 @@ educational purposes** only. Do not attempt to re-identify participants or use
 the data to make decisions about any individual.
 
 ## Contact
-Data controller / questions about this statement: Urme B — urme.emma@gmail.com.
+Data controller / questions about this statement: Urme Bose — urme.bose1@gmail.com.
