@@ -49,7 +49,7 @@ Longitudinal study where 10 adults completed standardized psychology tests acros
 
 ## Key findings
 
-There's high variability between people (everyone responds quite differently during testing) but low variability within each person across sessions (each individual's physiological pattern stays pretty consistent). This suggests these responses reflect stable individual traits rather than just random fluctuation.
+How stable are these patterns within a person across sessions? A test–retest reliability check (ICC(1), n = 10, 3 sessions) on the committed summaries gives ICC = 0.22 for HRV SDNN, 0.45 for pupil-dilation variability, and 0.61 for response-duration variability — poor for the physiological measures, moderate at best. So the data do **not** support a strong "stable individual traits" reading: with only 10 participants, these measures look closer to session-to-session fluctuation than to reliable traits. Any stability claim should be read as tentative and underpowered.
 
 ![Correlation matrix of HRV SDNN and Pupil Dilation STD across sessions](images/correlation_heatmap_with_values_final.png)
 
