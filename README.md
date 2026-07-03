@@ -71,6 +71,10 @@ Python · Jupyter · pandas · NumPy · SciPy · Matplotlib · Seaborn · scikit
 
 IoT · Machine Learning · Multimodal · Neurophysiological · Multi-Sensors · Psychometrics
 
+## Ethics & Data
+
+This repository contains human-subjects data (psychometric responses and physiological recordings from 10 adult participants). All participants gave written informed consent, including consent to share the data openly for research and educational use. Released records are pseudonymised — no names, contact details, dates of birth, or device identifiers — and are handled as special-category personal data under the GDPR and the French Data Protection Act. No IRB number applies; governance rests on that data-protection framework plus explicit consent. Intended for research and educational use only; do not attempt to re-identify participants. Full statement: [DATA_ETHICS.md](DATA_ETHICS.md).
+
 ## Related repos
 
 - [Sensor](https://github.com/urme-b/Sensor) — Review of the biometric sensors used here
