@@ -9,7 +9,7 @@ Longitudinal study where 10 adults completed standardized psychology tests acros
 | Participants | 10 adults |
 | Sessions | 3 per participant (weekly intervals) |
 | Design | Longitudinal, within-subjects |
-| Key finding | People differed a lot from each other, but each person's pattern stayed consistent across sessions |
+| Key finding | People differed a lot from each other; within-person consistency across sessions is tentative and underpowered (ICC(1) 0.22–0.61, n = 10) |
 
 ## Psychometric instruments
 
