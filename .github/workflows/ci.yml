@@ -25,10 +25,29 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -e ".[dev]"
 
       - name: Validate committed data and notebooks
+        run: pytest tests/ -q
+
+      - name: Verify group summaries regenerate + reconcile
+        run: python pipeline/build_group_summaries.py
+
+  locked:
+    name: Reproducible install from hashed lock
+    runs-on: ubuntu-latest   # the lock targets x86_64-linux / py3.11
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install from the pinned, hashed lock
+        run: |
+          python -m pip install --upgrade pip
+          pip install --require-hashes -r requirements.lock
+          pip install -e . --no-deps
+      - name: Test against the locked environment
         run: pytest tests/ -q
 
   security:
@@ -43,7 +62,7 @@ jobs:
       - name: Install project + pip-audit
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -e ".[dev]"   # audit the closure the code actually runs in
           pip install pip-audit
       - name: Audit installed dependencies
         run: pip-audit --desc
@@ -68,8 +87,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -e ".[dev]"
 
       - name: Execute notebooks
-        run: pytest --nbmake --nbmake-timeout=900 case-study group individual
+        # --nbmake-kernel=python3 overrides any embedded kernel name so a clean
+        # checkout runs regardless of the author's local kernel.
+        run: pytest --nbmake --nbmake-kernel=python3 --nbmake-timeout=900 case-study group individual

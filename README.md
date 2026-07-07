@@ -49,7 +49,15 @@ Longitudinal study where 10 adults completed standardized psychology tests acros
 
 ## Key findings
 
-How stable are these patterns within a person across sessions? A test–retest reliability check (ICC(1), n = 10, 3 sessions) on the committed summaries gives ICC = 0.22 for HRV SDNN, 0.45 for pupil-dilation variability, and 0.61 for response-duration variability — poor for the physiological measures, moderate at best. So the data do **not** support a strong "stable individual traits" reading: with only 10 participants, these measures look closer to session-to-session fluctuation than to reliable traits. Any stability claim should be read as tentative and underpowered.
+How stable are these patterns within a person across sessions? A test–retest reliability check (ICC(1), n = 10, 3 sessions) on the committed summaries gives:
+
+| Measure | ICC(1) | 95% CI |
+|---------|:------:|:------:|
+| HRV SDNN | 0.22 | **[−0.13, 0.66]** |
+| Pupil-dilation variability | 0.45 | [0.07, 0.79] |
+| Response-duration variability | 0.61 | [0.25, 0.87] |
+
+The confidence intervals are the real story: for HRV the interval **crosses zero**, meaning the data are equally consistent with negative and moderate reliability — i.e. essentially uninformative at n = 10. So the data do **not** support a strong "stable individual traits" reading; these measures look closer to session-to-session fluctuation than to reliable traits. Any stability claim should be read as tentative and underpowered. These numbers are fully reproducible — `mms.stats.icc1` recomputes them (point estimate and CI) from `data/group_results/`.
 
 ![Correlation matrix of HRV SDNN and Pupil Dilation STD across sessions](images/correlation_heatmap_with_values_final.png)
 
@@ -62,6 +70,44 @@ How stable are these patterns within a person across sessions? A test–retest r
 | K-Means clusters in PCA space | Optimal cluster selection |
 |:---:|:---:|
 | ![PCA K-Means clusters](images/pca_kmeans_clusters.png) | ![Silhouette score vs number of clusters](images/silhouette_score.png) |
+
+## Reproduce this analysis
+
+```bash
+git clone https://github.com/urme-b/Multimodal-Multisensor
+cd Multimodal-Multisensor
+
+python -m venv .venv && source .venv/bin/activate   # Python >= 3.11
+pip install -e ".[dev,notebooks]"                   # deps + mms + tests + jupyterlab
+# Byte-for-byte reproducible install instead (hashed lock):
+#   pip install -r requirements.lock && pip install -e . --no-deps
+
+# Regenerate the group-level summaries from committed data + reconciliation report
+python pipeline/build_group_summaries.py
+
+# Reproduce the headline reliability numbers (ICC + 95% CIs)
+python -c "import mms, pandas as pd; \
+m=mms.io.load_group_summary('HRV_SDNN')[['Session 01','Session 02','Session 03']].to_numpy(float); \
+print(mms.stats.icc1(m))"
+
+# Explore the notebooks
+jupyter lab
+```
+
+**Suggested notebook order** (each folder is independent):
+`case-study/preprocess_raw_to_csv → build_hrv → 1_hr / 1_hrv / 2_fixation → 3_clustering`,
+then `group/group_analysis → group_correlation_matrix → group_correlation_heatmap`.
+
+Shared loaders and metrics live in the [`mms/`](mms/) package (`mms.io`,
+`mms.hrv`, `mms.stats`, `mms.fixation`) so notebooks import tested code instead
+of re-implementing it. Reproducibility scope and known data issues are documented
+in **[DATA_PROVENANCE.md](DATA_PROVENANCE.md)**.
+
+## Reports & publications
+
+- [Multimodal Multisensor Technical Report.pdf](Multimodal%20Multisensor%20Technical%20Report.pdf) — methods and results write-up
+- [Thesis Report.pdf](Thesis%20Report.pdf) — full thesis
+- [CYPSY_Poster.pdf](CYPSY_Poster.pdf) — CyberPsychology conference poster
 
 ## Tech Stack
 
@@ -83,4 +129,5 @@ This repository contains human-subjects data (psychometric responses and physiol
 
 ## License
 
-[MIT](LICENSE)
+- **Code** (notebooks, `mms/`, scripts) — [MIT](LICENSE)
+- **Data** (`data/`) and figures — [CC-BY-4.0 with a no-re-identification term](DATA_LICENSE.md) (special-category health data)

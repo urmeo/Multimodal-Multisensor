@@ -30,10 +30,12 @@ penalty.
   details, dates of birth, or device identifiers).
 - Participants are referred to only by non-reversible pseudonymous codes
   (e.g. `01`, `02`).
-- Recording timestamps are retained for time-series analysis. They carry no
-  location or identity information and, combined only with pseudonymous codes,
-  present low re-identification risk; they can be shifted to relative session
-  time on request.
+- Recording timestamps are retained for time-series analysis. To minimise the
+  residual re-identification risk of absolute appointment dates/times, run
+  [`scripts/deidentify_timestamps.py`](scripts/deidentify_timestamps.py)
+  (`--apply`) to shift each session to a relative origin (`2000-01-01`),
+  preserving within-session alignment while removing the wall-clock date/time.
+  The tool is dry-run by default.
 - If you believe any released field could re-identify a participant, please open
   an issue and it will be removed.
 

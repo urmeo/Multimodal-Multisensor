@@ -13,17 +13,20 @@ Group-level analysis of physiological data from 10 participants across 3 session
 ## Notebooks
 
 ```
-├── Group_Analysis.ipynb               # Full cohort psychometric + physiology analysis
-├── Group Correlation Matrix.ipynb     # Cross-modal correlation analysis
-├── Group HRV.ipynb                    # Heart rate variability across sessions
-├── Group Eye.ipynb                    # Pupil dilation across sessions
-├── Group Duration.ipynb               # Test completion time analysis
-├── Group SD.ipynb                     # Standard deviation metrics
-├── Group Time.ipynb                   # Response timing analysis
-└── Duration.ipynb                     # Per-session duration breakdowns
+├── group_analysis.ipynb              # Full-cohort psychometric + physiology analysis
+├── group_correlation_matrix.ipynb    # Cross-modal correlation matrix (FDR-corrected)
+├── group_correlation_heatmap.ipynb   # Generates the README headline heatmap PNG
+├── group_hrv.ipynb                   # Heart-rate variability across sessions
+├── group_eye.ipynb                   # Pupil dilation across sessions
+├── group_duration.ipynb              # Test-completion-time variability
+├── group_sd.ipynb                    # Standard-deviation metrics
+├── group_time.ipynb                  # Response-timing analysis
+└── duration.ipynb                    # Per-session duration breakdowns
 ```
 
-Summary CSVs live in `../data/group_results/`.
+Summary CSVs live in `../data/group_results/`. See
+[`../DATA_PROVENANCE.md`](../DATA_PROVENANCE.md) for how they are generated and
+which rows are regenerable from committed data.
 
 ## Analysis approach
 
