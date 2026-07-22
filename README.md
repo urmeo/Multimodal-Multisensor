@@ -74,7 +74,7 @@ The confidence intervals are the real story: for HRV the interval **crosses zero
 ## Reproduce this analysis
 
 ```bash
-git clone https://github.com/urme-b/Multimodal-Multisensor
+git clone https://github.com/urmeo/Multimodal-Multisensor
 cd Multimodal-Multisensor
 
 python -m venv .venv && source .venv/bin/activate   # Python >= 3.11
@@ -123,9 +123,9 @@ This repository contains human-subjects data (psychometric responses and physiol
 
 ## Related repos
 
-- [Sensor](https://github.com/urme-b/Sensor) — Review of the biometric sensors used here
-- [Psychometric](https://github.com/urme-b/Psychometric) — Web app for the psychometric tests used in this study
-- [CalmSense](https://github.com/urme-b/CalmSense) — ML/DL stress detection from physiological signals
+- [Sensor](https://github.com/urmeo/Sensor) — Review of the biometric sensors used here
+- [Psychometric](https://github.com/urmeo/Psychometric) — Web app for the psychometric tests used in this study
+- [CalmSense](https://github.com/urmeo/CalmSense) — ML/DL stress detection from physiological signals
 
 ## License
 
