@@ -124,3 +124,28 @@ def test_load_hr_individual_source_and_raw_confidence():
 def test_unknown_source_raises():
     with pytest.raises(ValueError):
         mms.io.load_ibi(1, source="casestudy")  # typo must not silently load INDIVIDUAL
+
+
+@pytest.mark.parametrize("window_s, step_s", [
+    (0, None), (-1, None), (float("nan"), None), (float("inf"), None),
+    (30, 0), (30, -1), (30, float("nan")), (30, float("inf")),
+])
+def test_hrv_over_time_rejects_invalid_windows(window_s, step_s):
+    df = pd.DataFrame({"reltime": [0, 1], "ibi": [800, 810]})
+    with pytest.raises(ValueError, match="finite and positive"):
+        mms.hrv.hrv_over_time(df, window_s=window_s, step_s=step_s)
+
+
+def test_hrv_rolling_differences_stay_inside_beat_window():
+    df = pd.DataFrame({"ibi": [700, 800, 800, 800]})
+    out = mms.hrv.hrv_rolling(df, window_beats=3)
+    assert out["rmssd"].iloc[2] == pytest.approx(np.sqrt(5000))
+    assert out["rmssd"].iloc[3] == 0
+
+
+def test_hrv_over_time_ignores_nonfinite_timestamps():
+    df = pd.DataFrame({"reltime": [0, np.inf, -np.inf, np.nan, 1],
+                       "ibi": [800, 1900, 1900, 1900, 810]})
+    out = mms.hrv.hrv_over_time(df)
+    assert out["n_beats"].tolist() == [2]
+    assert out["rmssd"].iloc[0] == 10

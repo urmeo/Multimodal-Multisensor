@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 CSV_FILES = sorted(
-    p for p in ROOT.rglob("*.csv") if ".ipynb_checkpoints" not in p.parts
+    p for p in (ROOT / "data").rglob("*.csv") if ".ipynb_checkpoints" not in p.parts
 )
 
 

@@ -47,7 +47,9 @@ def hrv_rolling(
     d["sdnn"] = nn.rolling(window_beats, min_periods=min_p).std(ddof=1)
     # A filtered-out beat voids the two successive differences that span it, so
     # rmssd may rest on slightly fewer beats than sdnn near an artifact — intended.
-    d["rmssd"] = (nn.diff() ** 2).rolling(window_beats, min_periods=min_p).mean() ** 0.5
+    d["rmssd"] = (nn.diff() ** 2).rolling(
+        window_beats - 1, min_periods=min_p - 1
+    ).mean() ** 0.5
     return d
 
 
@@ -65,10 +67,12 @@ def hrv_over_time(
     Returns ``window_start_s, n_beats, sdnn, rmssd``. ``step_s`` defaults to
     ``window_s`` (non-overlapping windows).
     """
-    step_s = step_s or window_s
+    step_s = window_s if step_s is None else step_s
+    if not all(np.isfinite(v) and v > 0 for v in (window_s, step_s)):
+        raise ValueError("window_s and step_s must be finite and positive")
     d = df[[time_col, ibi_col]].copy()
     d[time_col] = pd.to_numeric(d[time_col], errors="coerce")
-    d = d.dropna(subset=[time_col])
+    d = d[np.isfinite(d[time_col])]
     if d.empty:
         return pd.DataFrame(columns=["window_start_s", "n_beats", "sdnn", "rmssd"])
 
