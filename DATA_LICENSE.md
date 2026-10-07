@@ -1,28 +1,19 @@
-# Data license
+# Data terms
 
-The repository's [`LICENSE`](LICENSE) (MIT) governs the **code** (notebooks, the
-`mms/` package, scripts). MIT is a software license — it speaks of "the
-Software" and grants rights to sell/sublicense — so it does not cleanly govern a
-dataset. The **data** under [`data/`](data/) and the derived figures are
-therefore released separately under:
+| Material | Terms |
+| :--- | :--- |
+| Code and notebooks | [MIT](LICENSE) |
+| Author-owned data and figures | Recorded CC BY 4.0 grant plus release conditions below |
+| Instrument wording, translations and third-party material | Owners' rights; [NOTICE](NOTICE.md) |
 
-## Creative Commons Attribution 4.0 International (CC-BY-4.0)
+The recorded copyright grant permits sharing and adaptation, including commercial use, with attribution. [CC BY 4.0 legal text](https://creativecommons.org/licenses/by/4.0/legalcode.en) remains its reference. Cite [CITATION.cff](CITATION.cff) and identify changes.
 
-SPDX: `CC-BY-4.0` · Full text: https://creativecommons.org/licenses/by/4.0/legalcode
+## Recorded release conditions
 
-You are free to share and adapt the data for any purpose, including
-commercially, provided you give appropriate credit (cite via
-[`CITATION.cff`](CITATION.cff)).
+- Use is intended for research and education under the author's sharing-consent account.
+- Do not attempt reidentification or use records to decide matters about an individual.
+- Report privacy concerns [privately](https://github.com/urmeo/Multimodal-Multisensor/security/advisories/new).
 
-### Additional condition — no re-identification
+These conditions are retained from the original release. Describing a binding added copyright restriction as unchanged standard CC BY 4.0 was inconsistent: that license prohibits added copyright restrictions and does not grant all privacy/personality rights. [Sections 2(a)(5)(B), 2(b) and 7](https://creativecommons.org/licenses/by/4.0/legalcode.en) distinguish these scopes. Consent and data-protection obligations remain separate; this clarification does not waive the recorded conditions or broaden questionnaire permissions.
 
-Because this is pseudonymised **special-category health data** from human
-participants (see [`DATA_ETHICS.md`](DATA_ETHICS.md)), one binding condition is
-added on top of CC-BY-4.0:
-
-> You must **not** attempt to re-identify any participant, nor use the data to
-> make decisions about any individual. Report suspected re-identification risks
-> by opening an issue.
-
-This condition reflects the participants' consent terms and does not otherwise
-restrict the CC-BY-4.0 grant.
+[Consent and residual identifiers](DATA_ETHICS.md).

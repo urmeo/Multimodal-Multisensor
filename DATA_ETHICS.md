@@ -1,52 +1,37 @@
-# Data & Ethics Statement
+# Data and consent
 
-This repository contains human-subjects data: psychometric responses (HADS,
-STAI-S, BFI-10, Fear Questionnaire) and physiological recordings (heart rate,
-HRV, IBI, electrodermal activity, eye tracking) collected from 10 adult
-participants across three sessions. Because it includes health-related
-measurements, it is handled as special-category personal data.
+## Recorded consent
 
-## Legal basis and data protection
-This study was conducted, and the data are shared, in compliance with the EU
-General Data Protection Regulation (Regulation (EU) 2016/679, "GDPR") and the
-French Data Protection Act (Loi n° 78-17 du 6 janvier 1978, "Informatique et
-Libertés", as amended). No separate institutional review board (IRB) number
-applies; governance rests on the data-protection framework above together with
-the participants' explicit consent.
+The author states that all 10 adults gave written informed consent, including later open sharing for research and education and withdrawal without penalty. This authored account is retained; the repository does not independently establish every consent or review record.
 
-- Lawful basis: the participants' explicit, informed consent (GDPR Art. 6(1)(a)
-  and, for special-category health data, Art. 9(2)(a)).
-- Principles applied: data minimisation, purpose limitation, and release of only
-  pseudonymised records (GDPR Art. 5).
+The thesis describes an earlier team-only protocol. The poster proposes a CER submission, without evidence of approval granted. No approval identifier is recorded here. GDPR and French data-protection law are the author's stated framework, rather than proof of institutional approval or independently verified compliance.
 
-## Informed consent
-All participants gave written informed consent before participation, including
-explicit consent for the pseudonymised data to be shared openly for research and
-educational purposes. Participants were free to withdraw at any time without
-penalty.
+Recognizable session photographs have explicit consent described in the thesis, PDF page 46, printed 49, Annexes E/F. Photo consent is separate from tabular pseudonymization and questionnaire copyright.
 
-## De-identification
-- The released data contains **no direct identifiers** (no names, contact
-  details, dates of birth, or device identifiers).
-- Participants are referred to only by non-reversible pseudonymous codes
-  (e.g. `01`, `02`).
-- Recording timestamps are retained for time-series analysis. To minimise the
-  residual re-identification risk of absolute appointment dates/times, run
-  [`scripts/deidentify_timestamps.py`](scripts/deidentify_timestamps.py)
-  (`--apply`) to shift each session to a relative origin (`2000-01-01`),
-  preserving within-session alignment while removing the wall-clock date/time.
-  The tool is dry-run by default.
-- If you believe any released field could re-identify a participant, please open
-  an issue and it will be removed.
+## Actual release scope
 
-## Data-subject rights
-Participants retain their GDPR rights of access, rectification, erasure, and
-objection. Requests can be made via the contact below.
+| Material | Residual information |
+| :--- | :--- |
+| CSVs and raw TXT | Responses, physiological data, calendar timestamps and channel/device labels |
+| QQ and modified CSVs | Historical dates, derived flags and responses |
+| Notebooks, PDFs and screenshots | Dates, device labels and context |
+| Session photographs | Consented recognizable people |
 
-## Permitted use
-This data is released under the repository's license for **research and
-educational purposes** only. Do not attempt to re-identify participants or use
-the data to make decisions about any individual.
+Participant codes reduce naming in tables; they do not establish anonymity or make this entire release identifier-free. Two distinct raw folders are present; the individual folder's participant mapping is undocumented. Eye/cardiac records are available; GSR and facial outputs are absent.
 
-## Contact
-Data controller / questions about this statement: Urme Bose ([@urmeo](https://github.com/urmeo)).
+## Timestamp copies
+
+```sh
+python -m scripts.deidentify_timestamps
+python -m scripts.deidentify_timestamps --output-root /tmp/mms-time-copies
+```
+
+The tool validates all 51 CSVs before writing. It copies calendar-bearing CSVs only, shifting each file/clock domain to a relative calendar anchor. Raw TXT, notebooks, reports, media and non-time CSVs remain unchanged. Source files are never overwritten; malformed nonempty dates fail. Logs omit original dates and offsets.
+
+File-local shifts preserve compatible within-file differences, not unestablished cross-stream synchronization. Copies retain sensitive responses and measurements; they are not an anonymous release.
+
+## Use and contact
+
+- Retain attribution and comply with [data terms](DATA_LICENSE.md), consent limits and [instrument rights](NOTICE.md). Do not reidentify participants or make individual decisions from these records.
+- Report identifying evidence privately through [Security](https://github.com/urmeo/Multimodal-Multisensor/security/advisories/new). Public reproducibility issues should use synthetic examples.
+- Data-subject access, correction, erasure and objection requests go to recorded controller Urme Bose, [@urmeo](https://github.com/urmeo), through a private channel.

@@ -1,154 +1,180 @@
 #!/usr/bin/env python3
-"""Shift absolute timestamps to relative session time (privacy hardening).
+"""Calendar-shift selected CSV copies with complete validation before writing.
 
-Absolute appointment date + start time is a re-identification vector for an n=10
-cohort. This anchors each session at ``2000-01-01T00:00:00``, removing the
-wall-clock date/time while preserving relative timings.
-
-- **Dry-run by default**; ``--apply`` writes in place, ``--apply --out DIR`` writes
-  the shifted time-bearing files under DIR (not a full copy of ``data/`` — non-time
-  files are not copied).
-- **Alignment-preserving**: files sharing a (folder, session) shift by one offset,
-  so cross-stream joins still line up.
-- **Format-preserving**: slash or ISO-8601 output as in the source.
-
-Scope: per-session streams + psychometric originals. Aggregates (``QQ*``) and
-``*_modified`` files are left alone. Timestamps are treated as UTC wall-clock.
+This covers the exact released CSV inventory, including QQ, modified and legacy
+exports. Raw TXT, notebooks, reports, screenshots and photographs are unchanged.
+Each file/clock-awareness domain gets its own origin; no cross-stream alignment
+or anonymity is established. No source file is ever overwritten.
 """
+
 from __future__ import annotations
 
 import argparse
 import re
-import warnings
+import sys
 from pathlib import Path
+from typing import Sequence
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from mms import io, paths  # noqa: E402
+
 ANCHOR = pd.Timestamp("2000-01-01T00:00:00")
-
-# column -> ("slash" | "iso") output format
 TIME_COLUMNS = {
-    "datetime": "slash",
-    "Question Start Time": "iso",
-    "Question Answer Time": "iso",
-    "Answer Time": "iso",  # older psychometric export header
+    "datetime",
+    "Question Start Time",
+    "Question Answer Time",
+    "Answer Time",
+    "Start Time",
+    "End Time",
 }
-SLASH_FMT = "%Y/%m/%d %H:%M:%S.%f"
+CALENDAR = re.compile(r"^\s*\d{4}[-/]\d{1,2}[-/]\d{1,2}(?:[T ]|$)")
 
 
-def session_key(path: Path) -> str:
-    """Group files that must share a time origin: (folder, session suffix)."""
-    folder = path.relative_to(ROOT).parts[1]  # case-study | individual
-    m = re.search(r"_(\d{2})(?:_modified)?\.csv$", path.name)
-    sess = m.group(1) if m else "baseline"
-    return f"{folder}/{sess}"
-
-
-def _parse(series: pd.Series, fmt: str) -> pd.Series:
-    return pd.to_datetime(series, format=SLASH_FMT if fmt == "slash" else None,
-                          utc=(fmt == "iso"), errors="coerce")
-
-
-def _emit(ts: pd.Series, fmt: str) -> pd.Series:
-    """Format shifted timestamps; NaT rows become blank, never 'nan'/'NaT'/'.0'."""
-    valid = ts.notna()
-    if fmt == "slash":
-        s = ts.dt.strftime(SLASH_FMT).str.slice(0, -2)  # trim to .ffff (4 dp)
-    else:
-        ms = (ts.dt.microsecond.fillna(0) // 1000).astype("int64").map("{:03d}".format)
-        s = ts.dt.strftime("%Y-%m-%dT%H:%M:%S.") + ms + "Z"
-    return s.where(valid)
-
-
-def _looks_like_datetime(s: pd.Series) -> bool:
-    """True if a string column parses mostly as timestamps (a possible PII leak)."""
-    if s.dtype != object:
+def _looks_like_datetime(series: pd.Series) -> bool:
+    """Inspect all string values, including pandas StringDtype, without parsing loss."""
+    if not (pd.api.types.is_string_dtype(series.dtype) or series.dtype == object):
         return False
-    sample = s.dropna().astype(str).head(50)
-    if sample.empty:
-        return False
-    # bare numbers (e.g. a "Time(s)" duration) parse as epochs — not timestamps
-    if pd.to_numeric(sample, errors="coerce").notna().mean() > 0.5:
-        return False
-    with warnings.catch_warnings():  # heuristic probe; ignore format hints
-        warnings.simplefilter("ignore")
-        parsed = pd.to_datetime(sample, errors="coerce", utc=True)
-    return parsed.notna().mean() > 0.8
+    return any(CALENDAR.match(str(value)) for value in series.dropna())
 
 
-def time_columns_of(df: pd.DataFrame) -> dict[str, str]:
-    """Map every timestamp column to its format: known columns + auto-detected ones.
-
-    Auto-detection (treated as ISO) catches renamed/mislabeled absolute-timestamp
-    columns — e.g. a psychometric file whose 'Time(s)' column holds timestamps —
-    so they cannot silently escape de-identification.
-    """
-    cols = {c: TIME_COLUMNS[c] for c in df.columns if c in TIME_COLUMNS}
-    for c in df.columns:
-        if c not in cols and _looks_like_datetime(df[c]):
-            cols[c] = "iso"
-    return cols
-
-
-def collect() -> dict[str, list[Path]]:
-    groups: dict[str, list[Path]] = {}
-    for path in sorted(ROOT.glob("data/*/**/*.csv")):
-        if "_modified" in path.name or path.name.startswith("QQ"):
-            continue
-        tcols = time_columns_of(pd.read_csv(path, nrows=200))
-        extra = [c for c in tcols if c not in TIME_COLUMNS]
-        if extra:
-            warnings.warn(
-                f"{path.relative_to(ROOT)}: auto-detected timestamp column(s) {extra} "
-                "not in TIME_COLUMNS — shifting them as ISO-8601"
+def time_columns_of(frame: pd.DataFrame) -> dict[str, str]:
+    columns = {}
+    for name in frame:
+        if name in TIME_COLUMNS or _looks_like_datetime(frame[name]):
+            values = frame[name].dropna().astype(str)
+            columns[name] = (
+                "slash"
+                if not values.empty and values.str.match(r"^\d{4}/").all()
+                else "iso"
             )
-        if tcols:
-            groups.setdefault(session_key(path), []).append(path)
-    return groups
+    return columns
 
 
-def group_offset(paths: list[Path]) -> pd.Timedelta:
-    mins = []
-    for p in paths:
-        df = pd.read_csv(p)
-        for col, fmt in time_columns_of(df).items():
-            t = _parse(df[col], fmt)
-            if t.notna().any():
-                mins.append(t.min().tz_localize(None) if t.dt.tz else t.min())
-    return min(mins) - ANCHOR if mins else pd.Timedelta(0)
+def collect(data_root: str | Path | None = None) -> tuple[Path, ...]:
+    """Exact 51 source CSVs; generated files are outside this policy."""
+    root = paths.resolve_data_root(data_root)
+    files = tuple(root / name for name in paths.SOURCE_CSV_RELATIVE)
+    missing = [str(path.relative_to(root)) for path in files if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"source CSV inventory is incomplete: {missing}")
+    return files
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--apply", action="store_true", help="write changes (default: dry run)")
-    ap.add_argument("--out", type=Path, help="write copies under this dir instead of in place")
-    args = ap.parse_args()
+def shift_frame(
+    frame: pd.DataFrame, *, naive_timezone: str | None = None
+) -> tuple[pd.DataFrame, list[str]]:
+    """Shift each compatible clock domain within one file, retaining aware times.
 
-    groups = collect()
-    total = sum(len(v) for v in groups.values())
-    print(f"{'APPLY' if args.apply else 'DRY-RUN'}: {total} files across "
-          f"{len(groups)} (folder, session) groups\n")
-
-    for key, paths in groups.items():
-        offset = group_offset(paths)
-        print(f"[{key}] shift -{offset}  ({len(paths)} files)")
-        if not args.apply:
+    Missing source cells remain missing; any malformed nonempty timestamp fails.
+    An explicit naive timezone is a caller's declared mapping, never a guess.
+    """
+    columns = time_columns_of(frame)
+    parsed = {
+        name: io.parse_datetime(
+            frame[name], naive_timezone=naive_timezone, allow_missing=True
+        )
+        for name in columns
+    }
+    domains: dict[bool, list[str]] = {}
+    for name, stamps in parsed.items():
+        domains.setdefault(stamps.dt.tz is not None, []).append(name)
+    out = frame.copy(deep=True)
+    for aware, names in domains.items():
+        minima = [parsed[name].min() for name in names if parsed[name].notna().any()]
+        if not minima:
             continue
-        for p in paths:
-            df = pd.read_csv(p)
-            for col, fmt in time_columns_of(df).items():
-                shifted = _parse(df[col], fmt)
-                shifted = (shifted.dt.tz_localize(None) if fmt == "iso" else shifted) - offset
-                df[col] = _emit(shifted, fmt)
-            dest = (args.out / p.relative_to(ROOT)) if args.out else p
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            df.to_csv(dest, index=False)
+        origin = min(minima)
+        anchor = ANCHOR.tz_localize(origin.tzinfo) if aware else ANCHOR
+        offset = origin - anchor
+        for name in names:
+            stamps = parsed[name] - offset
+            fmt = columns[name]
+            if fmt == "slash" and stamps.dt.tz is None:
+                out[name] = stamps.dt.strftime("%Y/%m/%d %H:%M:%S.%f").where(
+                    stamps.notna()
+                )
+            else:
+                out[name] = stamps.map(
+                    lambda stamp: stamp.isoformat() if not pd.isna(stamp) else None
+                )
+    return out, list(columns)
 
-    if not args.apply:
-        print("\nNo files written. Re-run with --apply to shift timestamps in place,")
-        print("or --apply --out data_deid/ to write de-identified copies.")
+
+def run(
+    data_root: str | Path | None = None,
+    *,
+    output_root: str | Path | None = None,
+    naive_timezone: str | None = None,
+) -> int:
+    root = paths.resolve_data_root(data_root)
+    prepared = []
+    for source in collect(root):
+        shifted, columns = shift_frame(
+            pd.read_csv(source), naive_timezone=naive_timezone
+        )
+        if columns:
+            prepared.append((source.relative_to(root), shifted, columns))
+    # Parse every file and validate every destination before mkdir/write.
+    destinations = (
+        [
+            paths.output_path(output_root, relative, data_root=root)
+            for relative, _, _ in prepared
+        ]
+        if output_root is not None
+        else []
+    )
+    print(f"Validated 51 source CSVs; {len(prepared)} files contain calendar columns.")
+    for relative, _, columns in prepared:
+        print(f"{relative}: {len(columns)} calendar columns")
+    print(
+        "Scope: calendar-bearing CSV copies only. Raw TXT, non-time CSVs, notebooks, "
+        "reports, screenshots and photos are not copied or shifted."
+    )
+    print(
+        "Origins are file-local and awareness-specific; no cross-stream synchronization "
+        "or anonymity is established. Sensitive responses/measurements remain."
+    )
+    if output_root is None:
+        print("Read-only validation; no files written.")
+        return 0
+    for (_, shifted, _), destination in zip(prepared, destinations, strict=True):
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shifted.to_csv(destination, index=False)
+    print(f"Wrote {len(destinations)} explicit CSV copies; source inputs unchanged.")
     return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument(
+        "--data-root",
+        type=Path,
+        help="folder containing case-study/individual/group_results",
+    )
+    parser.add_argument(
+        "--naive-timezone", help="explicit documented timezone for naive source clocks"
+    )
+    parser.add_argument(
+        "--apply", action="store_true", help="write copies only with --output-root"
+    )
+    parser.add_argument(
+        "--output-root", "--out", type=Path, help="separate explicit output directory"
+    )
+    args = parser.parse_args(argv)
+    if args.apply and args.output_root is None:
+        parser.error("--apply requires --output-root; in-place writes are unsupported")
+    try:
+        return run(
+            args.data_root,
+            output_root=args.output_root,
+            naive_timezone=args.naive_timezone,
+        )
+    except (OSError, ValueError, KeyError, pd.errors.ParserError) as error:
+        # No original calendar values or reconstructive offsets in logs.
+        print(f"Calendar shift failed: {error}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

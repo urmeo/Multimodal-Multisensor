@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mms"
-version = "1.0.0"
+version = "1.0.1"
 description = "Shared analysis code for the Multimodal-Multisensor longitudinal study"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,9 +13,9 @@ authors = [{ name = "Urme Bose" }]
 dependencies = [
     "numpy>=1.26,<3",
     "pandas>=2.0,<3",
+    "pytz>=2020.1",
     "scipy>=1.11,<2",
     "matplotlib>=3.8,<4",
-    "seaborn>=0.13,<0.14",
     "scikit-learn>=1.4,<2",
 ]
 

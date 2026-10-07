@@ -1,0 +1,55 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MPLCONFIGDIR: /tmp/mms-mpl
+  OPENBLAS_NUM_THREADS: 1
+  OMP_NUM_THREADS: 1
+  LOKY_MAX_CPU_COUNT: 2
+
+jobs:
+  test:
+    name: Validate data & notebooks (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest tests -q
+      - run: python -m pipeline.build_group_summaries --check
+      - run: python scripts/build_figures.py --check
+      - run: python scripts/verify_notebooks.py
+
+  locked:
+    name: Reproducible install from hashed lock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --require-hashes -r requirements.lock
+      - run: python -m pip install -e . --no-deps
+      - run: python -m pytest tests -q
+      - run: python -m pipeline.build_group_summaries --check
+      - run: python scripts/build_figures.py --check

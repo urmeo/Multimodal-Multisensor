@@ -1,10 +1,5 @@
-"""Unit tests for the shared analysis package `mms`.
+"""Numerical regressions and checks against the preserved study summaries."""
 
-Beyond smoke tests, these assert the metrics compute the *right numbers*:
-regression guards for the two original bugs (broadcast SDNN, uncorrected
-multiplicity), NaN-safety guards for the two the audit later found, and a
-reproduction check for the README's headline ICC values.
-"""
 import math
 
 import numpy as np
@@ -32,9 +27,14 @@ def test_icc1_perfect_agreement_is_one():
     assert math.isinf(res["F"])
 
 
-@pytest.mark.parametrize("bad", [np.array([1.0, 2.0, 3.0]),       # 1-D
-                                 np.array([[1.0], [2.0]]),         # k < 2
-                                 np.array([[1.0, 2.0]])])          # n < 2
+@pytest.mark.parametrize(
+    "bad",
+    [
+        np.array([1.0, 2.0, 3.0]),  # 1-D
+        np.array([[1.0], [2.0]]),  # k < 2
+        np.array([[1.0, 2.0]]),
+    ],
+)  # n < 2
 def test_icc1_degenerate_input_returns_nan(bad):
     res = mms.stats.icc1(bad)
     assert math.isnan(res["icc"])  # documented contract, not a crash
@@ -47,18 +47,18 @@ def test_sdnn_filters_artifacts_and_zeros():
     assert mms.hrv.sdnn(beats) == pytest.approx(expected)
 
 
-def test_rmssd_over_cleaned_nn():
+def test_rmssd_preserves_invalid_interval_gaps():
     beats = pd.Series([800, 810, 0, 5000, 790, 805])  # 0 and 5000 are artifacts
-    nn = pd.Series([800, 810, 790, 805])
-    expected = float(np.sqrt((nn.diff().dropna() ** 2).mean()))
+    expected = float(np.sqrt((10**2 + 15**2) / 2))
     assert mms.hrv.rmssd(beats) == pytest.approx(expected)
 
 
 def test_hrv_over_time_is_not_a_broadcast_scalar():
     rng = np.random.default_rng(0)
     n = len(np.arange(0, 300, 0.8))
-    df = pd.DataFrame({"reltime": np.arange(0, 300, 0.8),
-                       "ibi": 800 + rng.normal(0, 40, n)})
+    df = pd.DataFrame(
+        {"reltime": np.arange(0, 300, 0.8), "ibi": 800 + rng.normal(0, 40, n)}
+    )
     ts = mms.hrv.hrv_over_time(df, window_s=30)
     assert len(ts) > 1
     assert ts["sdnn"].nunique() > 1
@@ -76,7 +76,7 @@ def test_benjamini_hochberg_bounds_and_dominates_raw():
     p = [0.9, 0.001, 0.5, 0.01, 0.04]
     adj = mms.stats.benjamini_hochberg(p)
     assert np.all((adj >= 0) & (adj <= 1))
-    assert np.all(adj >= np.array(p) - 1e-12)             # adjusted >= raw
+    assert np.all(adj >= np.array(p) - 1e-12)  # adjusted >= raw
     assert np.array_equal(np.argsort(adj), np.argsort(p))  # rank order preserved
 
 
@@ -88,30 +88,38 @@ def test_benjamini_hochberg_is_nan_safe():
 
 
 def test_corr_matrix_fdr_shrinks_significance():
-    g = pd.concat([
-        mms.io.load_group_summary("HRV_SDNN").set_index("Participant").add_suffix("_HRV"),
-        mms.io.load_group_summary("Pupil_Dilation_STD").set_index("Participant").add_suffix("_Pupil"),
-    ], axis=1)
+    g = pd.concat(
+        [
+            mms.io.load_group_summary("HRV_SDNN")
+            .set_index("Participant")
+            .add_suffix("_HRV"),
+            mms.io.load_group_summary("Pupil_Dilation_STD")
+            .set_index("Participant")
+            .add_suffix("_Pupil"),
+        ],
+        axis=1,
+    )
     res = mms.stats.corr_matrix_fdr(g)
     n = res["r"].shape[0]
     iu = np.triu_indices(n, k=1)
     sig_raw = int((res["p_raw"].values[iu] < 0.05).sum())
     sig_fdr = int((res["p_fdr"].values[iu] < 0.05).sum())
-    assert sig_raw > 0          # guard is meaningful only if raw finds something
+    assert sig_raw > 0  # guard is meaningful only if raw finds something
     assert sig_fdr <= sig_raw
 
 
 # --- io / fixation ----------------------------------------------------------
 def test_pupil_std_quality_gates_and_matches_std():
-    sed = pd.DataFrame({"pupil": [3.0, 4.0, 100.0, 5.0],
-                        "pupilQ": [1.0, 1.0, 0.1, 1.0]})
+    sed = pd.DataFrame(
+        {"pupil": [3.0, 4.0, 100.0, 5.0], "pupilQ": [1.0, 1.0, 0.1, 1.0]}
+    )
     expected = pd.Series([3.0, 4.0, 5.0]).std(ddof=1)  # low-quality row excluded
     assert mms.fixation.pupil_std(sed, quality_min=0.5) == pytest.approx(expected)
 
 
-def test_parse_datetime_is_tz_naive():
+def test_parse_datetime_preserves_explicit_zone():
     out = mms.io.parse_datetime(pd.Series(["2024-05-28T15:37:00.695Z"]))
-    assert out.dt.tz is None
+    assert str(out.dt.tz) == "UTC"
     assert out.iloc[0].year == 2024
 
 
@@ -124,3 +132,40 @@ def test_load_hr_individual_source_and_raw_confidence():
 def test_unknown_source_raises():
     with pytest.raises(ValueError):
         mms.io.load_ibi(1, source="casestudy")  # typo must not silently load INDIVIDUAL
+
+
+@pytest.mark.parametrize(
+    "window_s, step_s",
+    [
+        (0, None),
+        (-1, None),
+        (float("nan"), None),
+        (float("inf"), None),
+        (30, 0),
+        (30, -1),
+        (30, float("nan")),
+        (30, float("inf")),
+    ],
+)
+def test_hrv_over_time_rejects_invalid_windows(window_s, step_s):
+    df = pd.DataFrame({"reltime": [0, 1], "ibi": [800, 810]})
+    with pytest.raises(ValueError, match="finite and positive"):
+        mms.hrv.hrv_over_time(df, window_s=window_s, step_s=step_s)
+
+
+def test_hrv_rolling_differences_stay_inside_beat_window():
+    df = pd.DataFrame({"ibi": [700, 800, 800, 800]})
+    out = mms.hrv.hrv_rolling(df, window_beats=3)
+    assert out["rmssd"].iloc[2] == pytest.approx(np.sqrt(5000))
+    assert out["rmssd"].iloc[3] == 0
+
+
+def test_hrv_over_time_rejects_nonfinite_timestamps():
+    df = pd.DataFrame(
+        {
+            "reltime": [0, np.inf, -np.inf, np.nan, 1],
+            "ibi": [800, 1900, 1900, 1900, 810],
+        }
+    )
+    with pytest.raises(ValueError, match="finite nonnegative"):
+        mms.hrv.hrv_over_time(df)

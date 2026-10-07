@@ -1,91 +1,63 @@
-# Data Provenance & Reproducibility
+# Data provenance
 
-This document states, honestly, **what in this repository can be regenerated
-from committed data and what cannot** — the question a reviewer or reuser asks
-first. It also documents the raw→processed→summary pipeline and known data
-issues. It complements [DATA_ETHICS.md](DATA_ETHICS.md) (consent, GDPR,
-de-identification).
+## Inventory
 
-## TL;DR reproducibility status
+| Source | Contents | Status |
+| :--- | :--- | :--- |
+| `data/case-study/raw` | 12 semicolon-delimited streams | One recording set; summaries numerically match group row P02 |
+| `data/individual/raw` | 12 different streams | Participant mapping undocumented; not duplicate files |
+| `data/*/processed` | Cardiac, eye and historical derived CSVs | Sampled channels; contracts below |
+| `data/*/psychometric` | Item responses and question timestamps | 88 items per current session; original wording retained |
+| `data/group_results` | 3 tables, P01 to P10, 3 sessions | Released values; most raw source mappings unavailable |
 
-| Layer | Regenerable from this repo? | How |
-|-------|-----------------------------|-----|
-| Headline reliability numbers (ICC) | ✅ Yes | `mms.stats.icc1` on `data/group_results/*.csv` — reproduces the README's 0.22 / 0.45 / 0.61 **and** adds the 95% CIs |
-| Case-study participant's summary row (= **P02**) | ✅ Yes — HRV & pupil exactly, duration to ~2e-5 | `python pipeline/build_group_summaries.py` |
-| Group summary rows for the other 9 participants | ❌ No | Their raw streams were not released (privacy) — see below |
-| Case-study per-session figures (HR, HRV, fixation, clustering) | ✅ Yes | Run the `case-study/` notebooks (data present) |
+**51 CSVs, 24 raw TXT files, 33 notebooks.** Suffixes 01,02,03 identify sessions; unsuffixed streams supply one baseline per modality. Analyses reuse it; three independent baselines are not documented.
 
-## The layers
+## Schemas and units
 
+| Fields | Meaning and limits |
+| :--- | :--- |
+| `reltime` | Seconds from that recording's origin; streams have independent origins |
+| `datetime` | Calendar time; sensor exports are naive, question times explicitly UTC |
+| `iSensor` | Channel identifier; current sample metrics keep channels separate |
+| `ibi` | Reported interval in ms; repeated sampled values are not established unique NN beats |
+| `heart_rate`, `confidence` | Reported bpm and source confidence |
+| `pupil`, `pupilQ`, `gazeQ` | Reported pupil mm and quality 0 to 1; current metrics require finite positive readings and stated quality bounds |
+| `gazeDir.*`, `gaze_*` | Original/renamed gaze components; legacy 0.01 rule is vector distance per sample, not angular velocity |
+| `fixation`, `fixation_id`, `duration` | Historical sample annotations; current event tables give one row per run, seconds, gap/quality handling and censoring |
+| `sdnn`, `rmssd` | Historical names; current interval-sample calculations use 30-sample windows and 29 internal adjacent differences |
+| `Time(s)` | Response duration in seconds for current question exports |
+| `Question Start Time`, `Question Answer Time` | Interval boundaries; no nearest-start or cross-clock guess |
+
+Current questionnaires contain HADS 14, STAI-S 20, STAI-T 20, BFI 10 and FQ 24 items. `Answer` coding, reversals and historical form identity need a separate scoring contract; notebooks do not assign diagnostic categories.
+
+`individual/psychometric/Psychometric_Test_Results_00.csv` is a malformed 88-row legacy export: `Time(s)` holds a start timestamp, `Question Start Time` a later timestamp, `Score` a duration and `Answer Time` is blank. It is retained, inspected explicitly and rejected by the canonical question loader.
+
+`*_modified.csv`, `QQ.csv`, `QQ2.csv` and `QQHRV.csv` are historical derivatives. Their dates and anxiety/decrease flags remain source evidence, without current diagnostic endorsement.
+
+## Reconciliation
+
+```sh
+python -m pipeline.build_group_summaries --check
+python -m pipeline.build_group_summaries --output-root /tmp/mms-review
 ```
-data/case-study/raw/*.txt          # sensor exports (semicolon-delimited), one participant
-        │  (parsing, column rename, derived fixation/duration columns)
-        ▼
-data/case-study/processed/*.csv    # tidy per-session streams: hr_0N, ibi_0N, sed_fix_0N
-        │  (per-session summary statistics — see mms/)
-        ▼
-data/group_results/*.csv           # one row per participant, one column per session
-```
 
-- **raw → processed**: the raw `.txt` files are semicolon-delimited and use
-  dotted names (`gazeDir.x`); the processed `.csv` files are comma-delimited. The
-  plain `sed_*.csv` streams keep raw's `gazeDir.{x,y,z}` names, while
-  `sed_fix_*.csv` renames them to `gaze_{x,y,z}` and adds derived `fixation`,
-  `fixation_id`, `duration`, and `gaze_diff` columns. Only the case-study
-  participant's raw files are present, so only that participant's processed layer
-  is regenerable end-to-end.
-- **processed → summary**: `pipeline/build_group_summaries.py` computes SDNN,
-  pupil-diameter STD and response-duration STD per session. It reproduces the
-  committed **P02** HRV and pupil rows exactly (< 1e-6) and the response-duration
-  row to ~2e-5 — see the reconciliation in
-  `data/group_results/reconstructed/MANIFEST.json` (generated by the pipeline and
-  gitignored, so absent from a fresh clone until you run it).
+The legacy recipe pools raw sample SDs without filtering. It is numerically consistent with P02; this does not independently prove identity. With `rtol=0`, absolute tolerances are **1e-9** for interval/pupil SD and **3e-5 seconds** for duration SD, covering known rounding drift. Unexpected drift fails with exit 1. Check mode writes nothing.
 
-## Why only one participant is regenerable
+Review outputs include separate per-channel filtered sample metrics and source/settings hashes. They do not replace group values or establish beat provenance. Invalid readings affect legacy variance; clinical meaning cannot be recovered from a variance spike alone.
 
-The case-study streams correspond to participant **P02** in the group tables.
-This was verified, not assumed: the case-study IBI, pupil and duration data
-reproduce the committed P02 row — HRV and pupil **exactly** (< 1e-6), duration to
-~2e-5. The raw
-streams for P01 and P03–P10 were **not released** — a deliberate,
-privacy-legitimate minimisation choice (only pseudonymised summaries are shared;
-see DATA_ETHICS.md). Consequently their summary rows are provided *as released
-values* and cannot be recomputed from this repository. `build_group_summaries.py`
-does **not** invent them.
+## Known equality patterns
 
-## Two recipes: original vs improved
+| Pattern | Released value | Status |
+| :--- | ---: | :--- |
+| P01 interval SD, S2=S3 | 65.39 | Suspected duplicate; report lists 1012.69 for S3 |
+| P07=P08 duration SD, S1 | 4.409281… | Suspected duplicate; underlying raw records unavailable |
 
-`build_group_summaries.py` reports both, so the choice is explicit:
+Equality is not proof of copying. Tests constrain exact IDs, values and multiplicities; new duplicates fail. Original cells remain unchanged.
 
-- **Original recipe** (reproduces the committed values): `ibi.std()` and
-  `pupil.std()` with **no artifact filtering**. This is faithful to how the
-  committed summaries were made, but it lets dropped beats and blink artifacts
-  inflate variance — e.g. P02's Session-2 pupil STD of **1.12** is an artifact
-  spike, ~2.3× the other sessions (more than double).
-- **Improved recipe** (recommended going forward): `mms.hrv.sdnn` applies a
-  300–2000 ms normal-to-normal filter; `mms.fixation.pupil_std` gates on the
-  `pupilQ` quality flag. These are more defensible and remove the S2 spike.
+## Clocks and outputs
 
-## Known data-integrity issues
+- Preserve naive/aware times. Question joins require acquisition-zone metadata; `MMS_SENSOR_TIMEZONE` supplies an explicit mapping, never an inferred one.
+- Producers use `MMS_OUTPUT_ROOT` outside source data; absent means no export. `MMS_DATA_ROOT` selects a directory containing `case-study`, `individual` and `group_results`.
+- Wheels contain code, not participant CSVs. Loaders accept `data_root=`; missing data gives a clear error.
 
-- **P01 HRV SDNN, Session 02 == Session 03 (both 65.39).** Byte-identical, a
-  suspected copy-paste artifact; the archived technical report lists a different
-  P01 Session-3 value. Because P01's raw data is not in the repo, **the correct
-  value cannot be recovered here**, so it is *flagged and left unmodified* rather
-  than guessed.
-- **P07 and P08 response-duration STD, Session 01 == 4.409281 (both).** Two
-  different participants share a byte-identical value to 15 decimals — a
-  cross-participant copy-paste artifact. Neither participant's raw data is in the
-  repo, so the true values cannot be recovered; both are flagged and left
-  unmodified. The data owner should restore them from the original source.
-
-`tests/test_data_integrity.py` fails loudly if any **new** duplicate — within a
-participant or across participants — appears; the two known cases above are
-allow-listed so CI stays green while regressions are caught.
-
-## `_modified` psychometric files
-
-`data/case-study/psychometric/*_modified.csv` drop the `Type` column, add a
-parsed `datetime` column, and reformat timestamps relative to the originals.
-They are analysis conveniences derived from the canonical
-`Psychometric_Test_Results_0N.csv` files; the originals are authoritative.
+[Report status](docs/REPORT_STATUS.md) · [Figure provenance](docs/FIGURES.md) · [Consent and residual identifiers](DATA_ETHICS.md)

@@ -1,0 +1,12 @@
+[method]
+icc = "ICC(1,1), finite complete rows, 95% F interval"
+correlation = "Spearman, descriptive, no significance stars"
+
+[source]
+HRV_SDNN = "df7e4ab294a7aed7118bb8e2c757280632673c10eb08e351a5b0cd6c280552e7"
+Pupil_Dilation_STD = "c3811f388f6366f0d2fe56833e231f4ae96effcfca00e764507f5e1ea0c34f6f"
+Psychometric_Test_Duration_STD = "e080aa3949c2cae3974d309bba5a60c9fed89847ccc82252ff9c1eef9a2c4abe"
+
+[figure]
+"reliability.png" = "fd5f0114ced1fc3b69140982d24e2d075d481f3bb105fd3e401ee010dd7723f7"
+"correlation.png" = "1c7eac320cfae0909b708c471ac90a067a49b6a63457dc85ee2d6fae0906303f"

@@ -1,0 +1,97 @@
+metric,row,column,value
+icc,Interval-sample SD,icc,0.22086877598148405
+icc,Interval-sample SD,lower,-0.13106918452370253
+icc,Interval-sample SD,upper,0.658524287982189
+icc,Interval-sample SD,n,10
+icc,Interval-sample SD,k,3
+icc,Pupil SD,icc,0.4477940842766905
+icc,Pupil SD,lower,0.06547549436756188
+icc,Pupil SD,upper,0.7943457679905739
+icc,Pupil SD,n,10
+icc,Pupil SD,k,3
+icc,Response-duration SD,icc,0.6105013899975152
+icc,Response-duration SD,lower,0.2519197907605476
+icc,Response-duration SD,upper,0.8690497539151382
+icc,Response-duration SD,n,10
+icc,Response-duration SD,k,3
+spearman,Interval-sample SD S1,Interval-sample SD S1,1.0
+spearman,Interval-sample SD S1,Interval-sample SD S2,0.5515151515151515
+spearman,Interval-sample SD S1,Interval-sample SD S3,0.41818181818181815
+spearman,Interval-sample SD S1,Pupil SD S1,0.29696969696969694
+spearman,Interval-sample SD S1,Pupil SD S2,0.2121212121212121
+spearman,Interval-sample SD S1,Pupil SD S3,0.4787878787878787
+spearman,Interval-sample SD S1,Response-duration SD S1,-0.07294866524160776
+spearman,Interval-sample SD S1,Response-duration SD S2,-0.01818181818181818
+spearman,Interval-sample SD S1,Response-duration SD S3,-0.09090909090909088
+spearman,Interval-sample SD S2,Interval-sample SD S1,0.5515151515151515
+spearman,Interval-sample SD S2,Interval-sample SD S2,1.0
+spearman,Interval-sample SD S2,Interval-sample SD S3,0.6484848484848483
+spearman,Interval-sample SD S2,Pupil SD S1,0.01818181818181818
+spearman,Interval-sample SD S2,Pupil SD S2,-0.38181818181818183
+spearman,Interval-sample SD S2,Pupil SD S3,0.28484848484848485
+spearman,Interval-sample SD S2,Response-duration SD S1,-0.40729671426564323
+spearman,Interval-sample SD S2,Response-duration SD S2,-0.006060606060606061
+spearman,Interval-sample SD S2,Response-duration SD S3,-0.13939393939393938
+spearman,Interval-sample SD S3,Interval-sample SD S1,0.41818181818181815
+spearman,Interval-sample SD S3,Interval-sample SD S2,0.6484848484848483
+spearman,Interval-sample SD S3,Interval-sample SD S3,1.0
+spearman,Interval-sample SD S3,Pupil SD S1,0.006060606060606061
+spearman,Interval-sample SD S3,Pupil SD S2,-0.406060606060606
+spearman,Interval-sample SD S3,Pupil SD S3,0.09090909090909088
+spearman,Interval-sample SD S3,Response-duration SD S1,-0.13373921960961418
+spearman,Interval-sample SD S3,Response-duration SD S2,0.41818181818181815
+spearman,Interval-sample SD S3,Response-duration SD S3,0.24848484848484845
+spearman,Pupil SD S1,Interval-sample SD S1,0.29696969696969694
+spearman,Pupil SD S1,Interval-sample SD S2,0.01818181818181818
+spearman,Pupil SD S1,Interval-sample SD S3,0.006060606060606061
+spearman,Pupil SD S1,Pupil SD S1,1.0
+spearman,Pupil SD S1,Pupil SD S2,0.24848484848484845
+spearman,Pupil SD S1,Pupil SD S3,0.4545454545454545
+spearman,Pupil SD S1,Response-duration SD S1,0.37690143708164003
+spearman,Pupil SD S1,Response-duration SD S2,0.4666666666666666
+spearman,Pupil SD S1,Response-duration SD S3,0.5636363636363636
+spearman,Pupil SD S2,Interval-sample SD S1,0.2121212121212121
+spearman,Pupil SD S2,Interval-sample SD S2,-0.38181818181818183
+spearman,Pupil SD S2,Interval-sample SD S3,-0.406060606060606
+spearman,Pupil SD S2,Pupil SD S1,0.24848484848484845
+spearman,Pupil SD S2,Pupil SD S2,1.0
+spearman,Pupil SD S2,Pupil SD S3,0.6242424242424242
+spearman,Pupil SD S2,Response-duration SD S1,0.03647433262080388
+spearman,Pupil SD S2,Response-duration SD S2,-0.32121212121212117
+spearman,Pupil SD S2,Response-duration SD S3,-0.34545454545454546
+spearman,Pupil SD S3,Interval-sample SD S1,0.4787878787878787
+spearman,Pupil SD S3,Interval-sample SD S2,0.28484848484848485
+spearman,Pupil SD S3,Interval-sample SD S3,0.09090909090909088
+spearman,Pupil SD S3,Pupil SD S1,0.4545454545454545
+spearman,Pupil SD S3,Pupil SD S2,0.6242424242424242
+spearman,Pupil SD S3,Pupil SD S3,1.0
+spearman,Pupil SD S3,Response-duration SD S1,-0.024316221747202584
+spearman,Pupil SD S3,Response-duration SD S2,-0.07878787878787878
+spearman,Pupil SD S3,Response-duration SD S3,-0.2727272727272727
+spearman,Response-duration SD S1,Interval-sample SD S1,-0.07294866524160776
+spearman,Response-duration SD S1,Interval-sample SD S2,-0.40729671426564323
+spearman,Response-duration SD S1,Interval-sample SD S3,-0.13373921960961418
+spearman,Response-duration SD S1,Pupil SD S1,0.37690143708164003
+spearman,Response-duration SD S1,Pupil SD S2,0.03647433262080388
+spearman,Response-duration SD S1,Pupil SD S3,-0.024316221747202584
+spearman,Response-duration SD S1,Response-duration SD S1,1.0
+spearman,Response-duration SD S1,Response-duration SD S2,0.7659609850368815
+spearman,Response-duration SD S1,Response-duration SD S3,0.4194548251392446
+spearman,Response-duration SD S2,Interval-sample SD S1,-0.01818181818181818
+spearman,Response-duration SD S2,Interval-sample SD S2,-0.006060606060606061
+spearman,Response-duration SD S2,Interval-sample SD S3,0.41818181818181815
+spearman,Response-duration SD S2,Pupil SD S1,0.4666666666666666
+spearman,Response-duration SD S2,Pupil SD S2,-0.32121212121212117
+spearman,Response-duration SD S2,Pupil SD S3,-0.07878787878787878
+spearman,Response-duration SD S2,Response-duration SD S1,0.7659609850368815
+spearman,Response-duration SD S2,Response-duration SD S2,1.0
+spearman,Response-duration SD S2,Response-duration SD S3,0.7454545454545454
+spearman,Response-duration SD S3,Interval-sample SD S1,-0.09090909090909088
+spearman,Response-duration SD S3,Interval-sample SD S2,-0.13939393939393938
+spearman,Response-duration SD S3,Interval-sample SD S3,0.24848484848484845
+spearman,Response-duration SD S3,Pupil SD S1,0.5636363636363636
+spearman,Response-duration SD S3,Pupil SD S2,-0.34545454545454546
+spearman,Response-duration SD S3,Pupil SD S3,-0.2727272727272727
+spearman,Response-duration SD S3,Response-duration SD S1,0.4194548251392446
+spearman,Response-duration SD S3,Response-duration SD S2,0.7454545454545454
+spearman,Response-duration SD S3,Response-duration SD S3,1.0
