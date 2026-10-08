@@ -23,7 +23,6 @@ import mms  # noqa: E402
 
 SESSIONS = (1, 2, 3)
 CONSISTENT_GROUP_ROW = "P02"
-# Absolute tolerance, rtol=0. Duration includes the known rounding discrepancy.
 METRIC_TOLERANCES = {
     "HRV_SDNN": 1e-9,
     "Pupil_Dilation_STD": 1e-9,
@@ -223,7 +222,6 @@ def run(
         for metric, values in original.items()
     }
     frames["filtered_channel_sample_variability.csv"] = pd.DataFrame(records)
-    # All source/schema/metric/path validation finishes before mkdir or a write.
     destinations = {
         name: mms.paths.output_path(output_root, name, data_root=source)
         for name in (*frames, "MANIFEST.json")

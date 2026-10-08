@@ -8,7 +8,6 @@ from numbers import Integral, Real
 import numpy as np
 import pandas as pd
 
-# Compatibility names: these bounds filter interval samples, not verified NN beats.
 NN_MIN_MS = 300.0
 NN_MAX_MS = 2000.0
 
@@ -65,7 +64,6 @@ def _elapsed(values, name: str) -> np.ndarray:
     if s.empty:
         return np.empty(0, dtype=float)
     origin = s.iloc[0].item() if isinstance(s.iloc[0], np.generic) else s.iloc[0]
-    # Subtract before float conversion to retain large integer time differences.
     elapsed = np.asarray(
         [(v.item() if isinstance(v, np.generic) else v) - origin for v in s],
         dtype=float,

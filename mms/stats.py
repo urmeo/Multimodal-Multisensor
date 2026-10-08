@@ -25,7 +25,6 @@ def icc1(data) -> dict:
     n, k = x.shape
     if n < 2:
         return {**_NAN_ICC, "n": int(n), "k": int(k)}
-    # Scale before squared deviations to avoid overflow without changing ICC.
     scale = float(np.max(np.abs(x)))
     if not scale:
         return {**_NAN_ICC, "n": int(n), "k": int(k)}

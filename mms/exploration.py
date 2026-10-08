@@ -102,7 +102,6 @@ def hr_summary(streams):
 def interval_summary(streams):
     rows = []
     for label, frame in streams.items():
-        # Shared rolling validation checks original order and real-valued times.
         hrv.hrv_rolling(frame, window_beats=30)
         for channel, part in _channels(frame):
             sample = _real(part["ibi"], "ibi").where(
@@ -259,7 +258,6 @@ def assign_questions(sample_times, questions, *, sensor_timezone=None):
     result = pd.Series(
         pd.NA, index=sample_times.index, dtype="Int64", name="question_pos"
     )
-    # Values are row positions, so duplicate external indexes cannot confuse joins.
     for position in order:
         mask = (time >= start.iloc[position]) & (time < end.iloc[position])
         result.iloc[np.flatnonzero(mask.to_numpy())] = int(position)
@@ -507,7 +505,6 @@ def synchronized_features(session, *, source="case-study"):
         base = b[["clock", "ibi"]].merge(
             h[["clock", "heart_rate"]], on="clock", validate="one_to_one"
         )
-        # Backward containment avoids assigning a future eye sample.
         base = pd.merge_asof(
             base.sort_values("clock"),
             e[["clock", "pupil"]].sort_values("clock"),
@@ -714,7 +711,7 @@ def gaze_rate_summary(streams):
     """Source-vector displacement per elapsed second; not angular velocity."""
     rows = []
     for label, frame in streams.items():
-        low_movement_events(frame)  # Shared chronological/quality validation.
+        low_movement_events(frame)
         columns = [f"gazeDir.{axis}" for axis in "xyz"]
         xyz = frame[columns].apply(_real, name="gaze vector")
         quality = _real(frame["gazeQ"], "gazeQ")

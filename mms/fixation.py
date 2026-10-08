@@ -209,7 +209,6 @@ def fixation_events(
                 delta = np.linalg.norm(np.diff(vectors, axis=0), axis=1)
             mask = np.zeros(len(sed), dtype=bool)
             mask[1:] = np.isfinite(delta) & (delta < distance)
-            # A distance pair cannot bridge an invalid preceding sample.
             preceding_valid = np.zeros(len(sed), dtype=bool)
             preceding_valid[1:] = valid.to_numpy(bool)[:-1]
             valid &= preceding_valid

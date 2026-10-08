@@ -333,7 +333,6 @@ def test_calendar_detection_checks_later_rows_and_refuses_parse_loss():
 def test_shift_validates_full_inventory_before_write_without_offsets_in_logs(
     dataset, tmp_path, capsys
 ):
-    # Include malformed legacy positions explicitly; no scoring adapter is inferred.
     legacy = dataset / "individual/psychometric/Psychometric_Test_Results_00.csv"
     pd.DataFrame(
         {

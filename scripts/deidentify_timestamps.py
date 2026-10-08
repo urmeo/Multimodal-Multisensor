@@ -116,7 +116,6 @@ def run(
         )
         if columns:
             prepared.append((source.relative_to(root), shifted, columns))
-    # Parse every file and validate every destination before mkdir/write.
     destinations = (
         [
             paths.output_path(output_root, relative, data_root=root)
@@ -172,7 +171,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             naive_timezone=args.naive_timezone,
         )
     except (OSError, ValueError, KeyError, pd.errors.ParserError) as error:
-        # No original calendar values or reconstructive offsets in logs.
         print(f"Calendar shift failed: {error}", file=sys.stderr)
         return 1
 

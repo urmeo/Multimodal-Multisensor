@@ -15,7 +15,6 @@ def test_exact_source_inventory():
     assert len(CSV_FILES) == 51
     assert len(set(CSV_FILES)) == 51
     assert all(path.is_file() for path in CSV_FILES)
-    # This list is source policy, not recursive discovery of ignored output.
     for source in paths.SOURCES:
         for folder in ("processed", "psychometric"):
             found = {

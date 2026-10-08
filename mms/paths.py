@@ -29,7 +29,6 @@ LEGACY_OUTPUT_NAMES = (
     "silhouette_score.png",
 )
 
-# Exact released inventory; generated output and package examples are excluded.
 SOURCE_CSV_RELATIVE = tuple(
     sorted(
         [
@@ -156,8 +155,6 @@ def output_path(
         raise ValueError("output path escapes output_root")
     if destination.exists() and not destination.is_file():
         raise ValueError("output destination must be a file")
-    # Protect all dataset artifacts, including historical figures/docs, against
-    # hard-link aliases. Discovery policy remains the exact source inventory.
     sources = (
         tuple(
             path
