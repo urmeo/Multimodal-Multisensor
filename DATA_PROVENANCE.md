@@ -34,6 +34,8 @@ Current questionnaires contain HADS 14, STAI-S 20, STAI-T 20, BFI 10 and FQ 24 i
 
 `*_modified.csv`, `QQ.csv`, `QQ2.csv` and `QQHRV.csv` are historical derivatives. Their dates and anxiety/decrease flags remain source evidence, without current diagnostic endorsement.
 
+The three `*_modified.csv` files and the legacy `*_00.csv` omit a leading header. Calendar-shift copies retain the inferred leading field as `source_index`; source bytes and historical column labels remain unchanged.
+
 ## Reconciliation
 
 ```sh

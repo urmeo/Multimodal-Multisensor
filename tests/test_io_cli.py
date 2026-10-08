@@ -383,6 +383,35 @@ def test_shift_validates_full_inventory_before_write_without_offsets_in_logs(
     ).dt.total_seconds().iloc[0] == 3
 
 
+@pytest.mark.parametrize(
+    "relative",
+    [
+        f"case-study/psychometric/Psychometric_Test_Results_{session:02d}_modified.csv"
+        for session in (1, 2, 3)
+    ]
+    + ["individual/psychometric/Psychometric_Test_Results_00.csv"],
+)
+def test_shift_preserves_leading_field_with_missing_header(dataset, tmp_path, relative):
+    source = dataset / relative
+    source.write_text(
+        "Question,Score,datetime\n"
+        "HADS,first,2,2001-02-03T04:05:00Z\n"
+        "STAI,second,3,2001-02-03T04:05:01Z\n"
+    )
+    before = snapshot(dataset)
+    output = tmp_path / "shifted"
+    assert shift.run(dataset, output_root=output) == 0
+    result = pd.read_csv(output / relative)
+    assert result.columns.tolist() == ["source_index", "Question", "Score", "datetime"]
+    assert result["source_index"].tolist() == ["HADS", "STAI"]
+    assert result["Question"].tolist() == ["first", "second"]
+    assert result["Score"].tolist() == [2, 3]
+    stamps = io.parse_datetime(result["datetime"])
+    assert stamps.iloc[0] == pd.Timestamp("2000-01-01T00:00:00Z")
+    assert (stamps.iloc[1] - stamps.iloc[0]).total_seconds() == 1
+    assert snapshot(dataset) == before
+
+
 def test_shift_parse_failure_and_missing_inventory_never_create_output(
     dataset, tmp_path
 ):
@@ -397,6 +426,22 @@ def test_shift_parse_failure_and_missing_inventory_never_create_output(
     path.unlink()
     assert shift.main(["--data-root", str(dataset), "--output-root", str(output)]) == 1
     assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    "csv",
+    [
+        "source_index,datetime\nHADS,first,2001-02-03T04:05:00Z\n",
+        "Question,datetime\nHADS,first,2,2001-02-03T04:05:00Z\n",
+    ],
+)
+def test_shift_ambiguous_inferred_index_fails_before_writing(dataset, tmp_path, csv):
+    source = dataset / "case-study/psychometric/Psychometric_Test_Results_01_modified.csv"
+    source.write_text(csv)
+    before = snapshot(dataset)
+    output = tmp_path / "shifted"
+    assert shift.main(["--data-root", str(dataset), "--output-root", str(output)]) == 1
+    assert not output.exists() and snapshot(dataset) == before
 
 
 def test_shift_in_place_flag_rejected_and_dry_run_immutable(dataset):

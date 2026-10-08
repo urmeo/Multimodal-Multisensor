@@ -111,9 +111,12 @@ def run(
     root = paths.resolve_data_root(data_root)
     prepared = []
     for source in collect(root):
-        shifted, columns = shift_frame(
-            pd.read_csv(source), naive_timezone=naive_timezone
-        )
+        frame = pd.read_csv(source)
+        if not isinstance(frame.index, pd.RangeIndex):
+            if frame.index.nlevels != 1 or "source_index" in frame.columns:
+                raise ValueError(f"cannot preserve inferred CSV index: {source.name}")
+            frame = frame.reset_index(names="source_index")
+        shifted, columns = shift_frame(frame, naive_timezone=naive_timezone)
         if columns:
             prepared.append((source.relative_to(root), shifted, columns))
     destinations = (
