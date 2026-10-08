@@ -39,6 +39,12 @@ def _numeric(frame: pd.DataFrame, column: str) -> pd.Series:
     return values
 
 
+def _validate_channels(frame: pd.DataFrame) -> None:
+    values = mms.hrv._real_series(frame["iSensor"], "iSensor")
+    if not np.isfinite(values.to_numpy(float)).all() or (values % 1 != 0).any():
+        raise ValueError("iSensor must contain finite integer channel identifiers")
+
+
 def _inputs(data_root: str | Path | None) -> tuple[dict, dict]:
     streams, committed = {}, {}
     for session in SESSIONS:
@@ -52,6 +58,8 @@ def _inputs(data_root: str | Path | None) -> tuple[dict, dict]:
         ):
             for column in columns:
                 _numeric(frame, column)
+        for frame in (ibi, eye):
+            _validate_channels(frame)
         streams[session] = (ibi, eye, psych)
     for metric in mms.paths.GROUP_METRICS:
         committed[metric] = mms.io.load_group_summary(metric, data_root=data_root)
@@ -78,6 +86,9 @@ def original_recipe(
 
 def filtered_sample_metrics(streams: dict) -> list[dict]:
     """Descriptive variability per channel; no beat identity is inferred."""
+    for ibi, eye, _ in streams.values():
+        for frame in (ibi, eye):
+            _validate_channels(frame)
     records = []
     for session, (ibi, eye, _) in streams.items():
         for channel, group in ibi.groupby("iSensor", sort=True):

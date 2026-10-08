@@ -268,6 +268,30 @@ def test_summary_full_prevalidation_prevents_partial_output(dataset, tmp_path):
     assert not output.exists() and snapshot(dataset) == before
 
 
+@pytest.mark.parametrize("kind", ["ibi", "sed_fix"])
+def test_summary_fractional_channels_fail_before_output(
+    kind, dataset, tmp_path, capsys
+):
+    target = dataset / "case-study/processed" / f"{kind}_03.csv"
+    frame = pd.read_csv(target)
+    frame["iSensor"] = [1.1, 1.1, 1.9, 1.9]
+    frame.to_csv(target, index=False)
+    before = snapshot(dataset)
+    output = tmp_path / "review"
+    assert build.main(["--data-root", str(dataset), "--output-root", str(output)]) == 1
+    assert "integer channel identifiers" in capsys.readouterr().err
+    assert not output.exists() and snapshot(dataset) == before
+    streams = {
+        3: (
+            io.load_ibi(3, data_root=dataset),
+            io.load_fixation(3, data_root=dataset),
+            pd.DataFrame(),
+        )
+    }
+    with pytest.raises(ValueError, match="integer channel identifiers"):
+        build.filtered_sample_metrics(streams)
+
+
 @pytest.mark.parametrize(
     "module", ["pipeline.build_group_summaries", "scripts.deidentify_timestamps"]
 )
