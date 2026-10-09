@@ -34,4 +34,4 @@ File-local shifts preserve compatible within-file differences, not unestablished
 
 - Retain attribution and comply with [data terms](DATA_LICENSE.md), consent limits and [instrument rights](NOTICE.md). Do not reidentify participants or make individual decisions from these records.
 - Report identifying evidence privately through [Security](https://github.com/urmeo/Multimodal-Multisensor/security/advisories/new). Public reproducibility issues should use synthetic examples.
-- Data-subject access, correction, erasure and objection requests go to recorded controller Urme Bose, [@urmeo](https://github.com/urmeo), through a private channel.
+- Data-subject access, correction, erasure and objection requests go to recorded controller Urme, [@urmeo](https://github.com/urmeo), through a private channel.

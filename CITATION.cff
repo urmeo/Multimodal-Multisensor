@@ -3,8 +3,7 @@ message: "Cite this dataset; recorded release terms are in DATA_LICENSE.md. Code
 type: dataset
 title: "Multimodal-Multisensor: Eye, Cardiac and Questionnaire Recordings Across Three Sessions"
 authors:
-  - family-names: "Bose"
-    given-names: "Urme"
+  - given-names: "Urme"
 version: 1.0.1
 url: "https://github.com/urmeo/Multimodal-Multisensor"
 keywords:

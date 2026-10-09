@@ -9,7 +9,7 @@ description = "Shared analysis code for the Multimodal-Multisensor longitudinal 
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Urme Bose" }]
+authors = [{ name = "Urme" }]
 dependencies = [
     "numpy>=1.26,<3",
     "pandas>=2.0,<3",
