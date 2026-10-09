@@ -1,8 +1,21 @@
 # Figure provenance
 
-## Current aggregate figures
+## Recording figures
 
-`outputs/reliability.png` and `outputs/correlation.png` use the unchanged three group tables. ICC(1,1) has 95% F intervals; correlations are Spearman over ten participant rows, without significance stars. No new participant profiles are published.
+The README plots use `data/case-study/raw/hr_01.txt`, `ibi_01.txt` and `sed_01.txt` directly. Heart rate retains finite positive readings with confidence 1; intervals retain finite positive repeated samples; pupils retain finite positive readings with `0.5 < pupilQ <= 1`. Channels stay separate; time is recording-relative seconds, without cross-stream alignment. Units are reported bpm, ms and mm, with calibration and unique-beat provenance unverified.
+
+```sh
+python -m scripts.build_recording_figures --check
+python -m scripts.build_recording_figures --output-root outputs
+```
+
+`outputs/recording-figures.toml` binds source hashes, exact selected values, filters, units, counts and image hashes. Check mode writes nothing. The three plots describe available samples; they do not establish anxiety categories or validate the ten-person group tables.
+
+`images/data_collection_session.jpg` is the original photograph in thesis PDF page 46, printed 49, Annex E, explicitly captioned with photo consent. Source bytes are unchanged.
+
+## Historical group-summary calculations
+
+`outputs/reliability.png` and `outputs/correlation.png` use the unchanged three group tables. ICC(1,1) has 95% F intervals; correlations are Spearman over ten participant rows, without significance stars. Most group rows cannot be traced to available raw recordings; these calculations are archival, not independently verified cohort measurements. No new participant profiles are published.
 
 `outputs/figures.csv` records values; `outputs/figures.toml` records source hashes, method and figure hashes. Regenerate explicitly with `python scripts/build_figures.py --output-root outputs`; verify with `--check`. Package version 1.0.1 is a maintenance identifier, without a new dataset release claim.
 

@@ -1,0 +1,36 @@
+"selection_sha256" = "094f5201b16734f2fee8312b1d1cde78d5c88de26a52c701554dc363b6cb0ee1"
+"scope" = "case-study Session 1 only; independent recording clocks; device mapping and beat provenance unverified"
+
+["source"]
+"data/case-study/raw/hr_01.txt" = "5175ce09150336b9a70730cb343e42c6fa547d6060f93690688d894d4aa88f2e"
+"data/case-study/raw/ibi_01.txt" = "a97eebf5f0391b428a19830017566f8c627124268d55b16911f19ad6516be41f"
+"data/case-study/raw/sed_01.txt" = "ac6b8ce41bb0cad41e9d62fc0a342272dd73b249b680189021fc8ffe6ab49c81"
+
+["filters"]
+"heart" = "finite positive heart_rate; confidence == 1"
+"interval" = "finite positive ibi; repeated samples retained"
+"pupil" = "finite positive pupil; 0.5 < pupilQ <= 1"
+
+["units"]
+"time" = "recording-relative seconds"
+"heart" = "reported bpm"
+"interval" = "reported ms"
+"pupil" = "reported mm"
+
+["counts"]
+
+["counts"."heart"]
+"3" = 1432
+"5" = 1411
+
+["counts"."interval"]
+"3" = 602
+"5" = 1299
+
+["counts"."pupil"]
+"0" = 23091
+
+["figures"]
+"recorded-heart.png" = "3c62afe1b0ac685672bb218c4afb8f0b4c1ab3c50a9f1b7583ec02054b83e1a9"
+"recorded-interval.png" = "857798a246e61e3c486f9d824f5238c0deee637f82ffa48dd18f33f93fffead2"
+"recorded-pupil.png" = "850c7981da15431ae8ae2c7307a3133af76af32714b669b7535642f8681fe3b6"
